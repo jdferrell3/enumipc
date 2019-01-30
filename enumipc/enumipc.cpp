@@ -1,3 +1,6 @@
+// Slightly moidified NetConnectionEnum() example from 
+// https://docs.microsoft.com/en-us/windows/desktop/api/lmshare/nf-lmshare-netconnectionenum
+
 //#ifndef UNICODE
 //#define UNICODE
 //#endif
@@ -5,76 +8,83 @@
 #include <lm.h>
 #include <stdio.h>
 #pragma comment(lib, "Netapi32.lib")
-void wmain(int argc, wchar_t *argv[])
+
+int wmain(int argc, wchar_t *argv[])
 {
 	DWORD res, i, er = 0, tr = 0, resume = 0;
 	PCONNECTION_INFO_1 p, b;
 	LPTSTR lpszServer = NULL, lpszShare = NULL;
 
 
-	if (argc < 2)
-		wprintf(L"Syntax: %s [ServerName] ShareName | \\ComputerName\n", argv[0]);
+	if (argc < 3)
+	{
+		wprintf(L"Syntax: %s <ServerName> <ShareName>\n", argv[0]);
+	}
 	else
 	{
-		//
 		// The server is not the default local computer.
-		//
-		if (argc > 2)
-			lpszServer = argv[1];
-		//
+		lpszServer = argv[1];
+
 		// ShareName is always the last argument.
-		//
-		lpszShare = argv[argc - 1];
-		//
+		lpszShare = argv[2];
+		
 		// Call the NetConnectionEnum function,
-		//  specifying information level 1.
-		//
+		// specifying information level 1.
 		res = NetConnectionEnum(lpszServer, lpszShare, 1, (LPBYTE *)&p, MAX_PREFERRED_LENGTH, &er, &tr, &resume);
-		//
+		
 		// If no error occurred,
-		//
 		if (res == 0)
 		{
-			//
 			// If there were any results,
-			//
 			if (er > 0)
 			{
+				printf("\nConnections to %S\\%S\n\n", lpszServer, lpszShare);
+				printf("User\tSource\n");
+				printf("-------------------------------------\n");
+				
 				b = p;
-				//
+		
 				// Loop through the entries; print user name and network name.
-				//
 				for (i = 0; i < er; i++)
 				{
 					printf("%S\t%S\n", b->coni1_username, b->coni1_netname);
 					b++;
 				}
+
 				// Free the allocated buffer.
-				//
 				NetApiBufferFree(p);
 			}
-			// Otherwise, print a message depending on whether
-			//  the qualifier parameter was a computer (\ComputerName)
-			//  or a share (ShareName).
-			//
 			else
 			{
-				if (lpszShare[0] == '\\')
-
-					printf("No connection to %S from %S\n",
-					(lpszServer == NULL) ? TEXT("LocalMachine") : lpszServer, lpszShare);
-				else
-
-					printf("No one connected to %S\%S\n",
+				printf("No one connected to %S\%S\n",
 					(lpszServer == NULL) ? TEXT("\\LocalMachine") : lpszServer, lpszShare);
 			}
 
 		}
-		//
-		// Otherwise, print the error.
-		//
 		else
+		{
+			// Otherwise, print the error.
+			
+			LPVOID lpMsgBuf;
+			LPVOID lpDisplayBuf;
+			DWORD dw = GetLastError();
+
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				FORMAT_MESSAGE_FROM_SYSTEM |
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				dw,
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				(LPTSTR)&lpMsgBuf,
+				0, NULL);
+
+			// Display the error message and exit the process
+			printf("%S", lpMsgBuf);
+
+			LocalFree(lpMsgBuf);
 			printf("Error: %d\n", res);
+		}
 	}
-	return;
+	return 0;
 }
