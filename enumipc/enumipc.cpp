@@ -22,10 +22,9 @@ int wmain(int argc, wchar_t *argv[])
 	}
 	else
 	{
-		// The server is not the default local computer.
 		lpszServer = argv[1];
 
-		// ShareName is always the last argument.
+		// ShareName is the last argument.
 		lpszShare = argv[2];
 		
 		// Call the NetConnectionEnum function,
@@ -38,8 +37,8 @@ int wmain(int argc, wchar_t *argv[])
 			// If there were any results,
 			if (er > 0)
 			{
-				printf("\nConnections to %S\\%S\n\n", lpszServer, lpszShare);
-				printf("User\tSource\n");
+				printf("\nConnections to \\\\%S\\%S\n\n", lpszServer, lpszShare);
+				printf("User - Source\n");
 				printf("-------------------------------------\n");
 				
 				b = p;
@@ -47,7 +46,7 @@ int wmain(int argc, wchar_t *argv[])
 				// Loop through the entries; print user name and network name.
 				for (i = 0; i < er; i++)
 				{
-					printf("%S\t%S\n", b->coni1_username, b->coni1_netname);
+					printf("%S - %S\n", b->coni1_username, b->coni1_netname);
 					b++;
 				}
 
@@ -56,8 +55,7 @@ int wmain(int argc, wchar_t *argv[])
 			}
 			else
 			{
-				printf("No one connected to %S\%S\n",
-					(lpszServer == NULL) ? TEXT("\\LocalMachine") : lpszServer, lpszShare);
+				printf("No one connected to \\\\%S\\%S\n", lpszServer, lpszShare);
 			}
 
 		}
@@ -66,7 +64,6 @@ int wmain(int argc, wchar_t *argv[])
 			// Otherwise, print the error.
 			
 			LPVOID lpMsgBuf;
-			LPVOID lpDisplayBuf;
 			DWORD dw = GetLastError();
 
 			FormatMessage(
@@ -80,7 +77,7 @@ int wmain(int argc, wchar_t *argv[])
 				0, NULL);
 
 			// Display the error message and exit the process
-			printf("%S", lpMsgBuf);
+			printf("%S", (LPTSTR)lpMsgBuf);
 
 			LocalFree(lpMsgBuf);
 			printf("Error: %d\n", res);
