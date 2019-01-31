@@ -52,5 +52,6 @@ Mkfile.old
 dkms.conf
 
 enumipc/Debug/*
+enumipc/Release/*
 enumipc/.vs/*
 enumipc/enumipc.vcxproj.*
