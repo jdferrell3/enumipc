@@ -2,7 +2,7 @@
 
 `enumipc.exe` is a small utility to list connections to a Windows share. It is pretty much the sample code from the [`NetConnectionEnum()`](https://docs.microsoft.com/en-us/windows/desktop/api/lmshare/nf-lmshare-netconnectionenum) example.
 
-Several Emotet malware write-ups indicate Emotet will query the IPC$ share to get a list of all endpoints that connect to it. This gives Emotet more hosts to potentially spread to (and usernames to use in brute-force attacks). I was curious how this worked, which is how this started.
+Several Emotet malware write-ups indicate Emotet will query the IPC$ share to get a list of all endpoints that are connected to it. This gives Emotet more hosts to potentially spread to (and usernames to use in brute-force attacks). I was curious how this might work, which is how this started.
 
 In the example below, we query `192.168.42.140` and see there are two users connected from two hosts:
 
